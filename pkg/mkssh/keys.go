@@ -61,8 +61,9 @@ func NewRSAKeyPair() (KeyPair, error) {
 	}
 
 	return KeyPair{
-		Type:    KeyTypeRSA,
-		Public:  rsaKey.PublicKey,
+		Type: KeyTypeRSA,
+		// N.B. x/crypto/ssh helpers expect *rsa.PublicKey
+		Public:  &rsaKey.PublicKey,
 		Private: rsaKey,
 	}, nil
 }
