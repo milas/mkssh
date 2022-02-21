@@ -3,6 +3,7 @@ module github.com/milas/mkssh
 go 1.17
 
 require (
+	github.com/sethvargo/go-password v0.2.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292

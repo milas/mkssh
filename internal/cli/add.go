@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/sethvargo/go-password/password"
 	"github.com/urfave/cli/v2"
 
 	"github.com/milas/mkssh/pkg/mkssh"
@@ -80,9 +81,14 @@ func NewAddCommand() *cli.Command {
 				return err
 			}
 
+			passphrase, err := password.Generate(64, 10, 10, false, false)
+			if err != nil {
+				return err
+			}
+
 			opts := mkssh.SaveOptions{
 				Comment:    c.String("comment"),
-				Passphrase: "foobar",
+				Passphrase: passphrase,
 			}
 
 			if err := k.Save(keyDir, name, opts); err != nil {
