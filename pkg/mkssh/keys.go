@@ -8,11 +8,13 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
 
+	"github.com/youmark/pkcs8"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -67,6 +69,8 @@ func NewRSAKeyPair() (KeyPair, error) {
 
 type SaveOptions struct {
 	Comment string
+
+	Passphrase string
 }
 
 func (k KeyPair) Save(basePath string, name string, opts SaveOptions) (err error) {
@@ -89,7 +93,7 @@ func (k KeyPair) Save(basePath string, name string, opts SaveOptions) (err error
 		}
 	}()
 
-	if err := k.writePrivateKeyPEM(privKeyFile); err != nil {
+	if err := k.writePrivateKeyPEM(privKeyFile, opts.Passphrase); err != nil {
 		return err
 	}
 
@@ -100,28 +104,40 @@ func (k KeyPair) Save(basePath string, name string, opts SaveOptions) (err error
 	return nil
 }
 
-func (k KeyPair) writePrivateKeyPEM(w io.Writer) error {
-	var block pem.Block
+func (k KeyPair) writePrivateKeyPEM(w io.Writer, passphrase string) error {
+	if passphrase == "" {
+		return errors.New("passphrase is required")
+	}
+
+	var block *pem.Block
 	switch k.Type {
 	case KeyTypeRSA:
 		// if RSA is being used, it's likely for compatibility, so let's be
-		// a bit more conservative and go with PKCS #1
-		block = pem.Block{
-			Type:  "RSA PRIVATE KEY",
-			Bytes: x509.MarshalPKCS1PrivateKey(k.Private.(*rsa.PrivateKey)),
-		}
-	default:
-		enc, err := x509.MarshalPKCS8PrivateKey(k.Private)
+		// a bit more conservative and go with PKCS #1 + 3DES
+		var err error
+		//goland:noinspection GoDeprecation
+		block, err = x509.EncryptPEMBlock(
+			rand.Reader,
+			"RSA PRIVATE KEY",
+			x509.MarshalPKCS1PrivateKey(k.Private.(*rsa.PrivateKey)),
+			[]byte(passphrase),
+			x509.PEMCipher3DES,
+		)
 		if err != nil {
 			return err
 		}
-		block = pem.Block{
-			Type:  "PRIVATE KEY",
-			Bytes: enc,
+	default:
+		data, err := pkcs8.ConvertPrivateKeyToPKCS8(k.Private, []byte(passphrase))
+		if err != nil {
+			return err
+		}
+		block = &pem.Block{
+			Type:  "ENCRYPTED PRIVATE KEY",
+			Bytes: data,
 		}
 	}
 
-	if err := pem.Encode(w, &block); err != nil {
+	if err := pem.Encode(w, block); err != nil {
 		return err
 	}
 	return nil

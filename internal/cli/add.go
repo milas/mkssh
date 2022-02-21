@@ -81,7 +81,8 @@ func NewAddCommand() *cli.Command {
 			}
 
 			opts := mkssh.SaveOptions{
-				Comment: c.String("comment"),
+				Comment:    c.String("comment"),
+				Passphrase: "foobar",
 			}
 
 			if err := k.Save(keyDir, name, opts); err != nil {
