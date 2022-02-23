@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/milas/mkssh/pkg/mkssh"
+	"github.com/milas/mkssh/pkg/secrets"
 )
 
 func NewAddCommand() *cli.Command {
@@ -92,6 +93,23 @@ func NewAddCommand() *cli.Command {
 			}
 
 			if err := k.Save(keyDir, name, opts); err != nil {
+				return err
+			}
+
+			secretsManager, err := secrets.NewManager()
+			if err != nil {
+				return err
+			}
+			// extra func() so defer wallet close always happens here
+			err = func() (err error) {
+				defer func() {
+					if closeErr := secretsManager.Close(); closeErr != nil && err == nil {
+						err = closeErr
+					}
+				}()
+				return secretsManager.SaveSSHKeyfilePassword(filepath.Join(keyDir, name), passphrase)
+			}()
+			if err != nil {
 				return err
 			}
 
