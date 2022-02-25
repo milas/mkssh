@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"github.com/sethvargo/go-password/password"
@@ -88,7 +89,7 @@ func NewAddCommand() *cli.Command {
 			}
 
 			opts := mkssh.SaveOptions{
-				Comment:    c.String("comment"),
+				Comment:    getKeyComment(c),
 				Passphrase: passphrase,
 			}
 
@@ -116,4 +117,22 @@ func NewAddCommand() *cli.Command {
 			return nil
 		},
 	}
+}
+
+func getKeyComment(c *cli.Context) string {
+	if c.IsSet("comment") {
+		return c.String("comment")
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		return ""
+	}
+
+	u, err := user.Current()
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%s@%s (mkssh)", u.Username, hostname)
 }
