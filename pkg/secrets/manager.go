@@ -1,7 +1,13 @@
 package secrets
 
+import (
+	"errors"
+)
+
+var ErrNotSupported = errors.New("not supported")
+
 type Manager interface {
-	SaveSSHKeyfilePassword(path string, passphrase string) error
+	SavePrivateKeyPassphrase(path string, passphrase string) error
 
 	Close() error
 }

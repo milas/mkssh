@@ -9,9 +9,12 @@ import (
 )
 
 func NewManager() (Manager, error) {
-	switch strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP")) {
-	case "kde":
+	desktop := strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP"))
+
+	if strings.Contains(desktop, "kde") {
 		return NewKWalletManager()
+	} else if strings.Contains(desktop, "gnome") {
+		return NewSecretServiceManager()
 	}
 	return nil, errors.New("unsupported platform")
 }
