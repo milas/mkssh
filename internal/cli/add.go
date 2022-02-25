@@ -78,7 +78,7 @@ func NewAddCommand() *cli.Command {
 				keyType = mkssh.KeyTypeRSA
 			}
 
-			k, err := mkssh.NewKeyPair(keyType)
+			k, err := mkssh.NewKeyPair(keyType, getKeyComment(c))
 			if err != nil {
 				return err
 			}
@@ -88,12 +88,8 @@ func NewAddCommand() *cli.Command {
 				return err
 			}
 
-			opts := mkssh.SaveOptions{
-				Comment:    getKeyComment(c),
-				Passphrase: passphrase,
-			}
-
-			if err := k.Save(keyDir, name, opts); err != nil {
+			keyPath := filepath.Join(keyDir, name)
+			if err := k.Save(keyPath, passphrase); err != nil {
 				return err
 			}
 
@@ -101,14 +97,14 @@ func NewAddCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			// extra func() so defer wallet close always happens here
+			// extra func() so defer secrets manager close always happens here
 			err = func() (err error) {
 				defer func() {
 					if closeErr := secretsManager.Close(); closeErr != nil && err == nil {
 						err = closeErr
 					}
 				}()
-				return secretsManager.SaveSSHKeyfilePassword(filepath.Join(keyDir, name), passphrase)
+				return secretsManager.SavePrivateKeyPassphrase(filepath.Join(keyDir, name), passphrase)
 			}()
 			if err != nil {
 				return err

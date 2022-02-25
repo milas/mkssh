@@ -8,7 +8,7 @@ import (
 
 type KeychainManager struct{}
 
-func (k KeychainManager) SaveSSHKeyfilePassword(path string, passphrase string) error {
+func (k KeychainManager) SavePrivateKeyPassphrase(path string, passphrase string) error {
 	item := keychain.NewItem()
 	item.SetSecClass(keychain.SecClassGenericPassword)
 	item.SetService("OpenSSH")

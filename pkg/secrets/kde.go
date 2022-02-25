@@ -22,7 +22,7 @@ func NewKWalletManager() (KWalletManager, error) {
 	}, nil
 }
 
-func (k KWalletManager) SaveSSHKeyfilePassword(path string, passphrase string) error {
+func (k KWalletManager) SavePrivateKeyPassphrase(path string, passphrase string) error {
 	w, err := gokwallet.NewWallet(k.wm, gokwallet.DefaultWalletName, &gokwallet.RecurseOpts{})
 	if err != nil {
 		return fmt.Errorf("could not open kwallet: %v", err)
