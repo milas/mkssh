@@ -23,9 +23,6 @@ func NewSecretServiceManager() (SecretServiceManager, error) {
 	if err != nil {
 		return SecretServiceManager{}, err
 	}
-	if err := conn.Close(); err != nil {
-		return SecretServiceManager{}, err
-	}
 
 	svc, err := secretservice.NewService()
 	if err != nil {
