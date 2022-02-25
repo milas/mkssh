@@ -11,19 +11,12 @@ import (
 
 type SecretServiceManager struct {
 	service *secretservice.SecretService
-	conn    *dbus.Conn
 	session *secretservice.Session
 }
 
 func NewSecretServiceManager() (SecretServiceManager, error) {
-	// HACK(milas): go-keychain doesn't expose the DBus connection but the go
-	// 	dbus lib stores the session bus as a global, so retrieve it here to
-	// 	disconnect cleanly
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return SecretServiceManager{}, err
-	}
-
+	// TODO(milas): currently there's no way to get access to the underlying
+	// 	dbus connection to close it when done
 	svc, err := secretservice.NewService()
 	if err != nil {
 		return SecretServiceManager{}, err
@@ -37,7 +30,6 @@ func NewSecretServiceManager() (SecretServiceManager, error) {
 	return SecretServiceManager{
 		service: svc,
 		session: session,
-		conn:    conn,
 	}, nil
 }
 
@@ -69,8 +61,5 @@ func (s SecretServiceManager) SavePrivateKeyPassphrase(path string, passphrase s
 
 func (s SecretServiceManager) Close() error {
 	s.service.CloseSession(s.session)
-	if err := s.conn.Close(); err != nil {
-		return err
-	}
 	return nil
 }
