@@ -110,6 +110,10 @@ func NewAddCommand() *cli.Command {
 				return err
 			}
 
+			if err := k.AddToAgent(); err != nil {
+				return err
+			}
+
 			return nil
 		},
 	}
