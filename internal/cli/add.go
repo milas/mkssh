@@ -12,6 +12,7 @@ import (
 
 	"github.com/milas/mkssh/pkg/mkssh"
 	"github.com/milas/mkssh/pkg/secrets"
+	"github.com/milas/mkssh/pkg/sshconfig"
 )
 
 func NewAddCommand() *cli.Command {
@@ -111,6 +112,11 @@ func NewAddCommand() *cli.Command {
 			}
 
 			if err := k.AddToAgent(); err != nil {
+				return err
+			}
+
+			err = sshconfig.UpdateHostInConfig(c.Path("config"), name, name, keyPath)
+			if err != nil {
 				return err
 			}
 

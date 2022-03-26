@@ -13,13 +13,13 @@ func NewApp() (*cli.App, error) {
 		return nil, err
 	}
 
-	defaultSSHDir := filepath.Join(homeDir, ".ssh", "config")
+	defaultSSHConfigPath := filepath.Join(homeDir, ".ssh", "config")
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.PathFlag{
 				Name:      "config",
 				Aliases:   []string{"c"},
-				Value:     filepath.Join(defaultSSHDir, "config"),
+				Value:     defaultSSHConfigPath,
 				Usage:     "Path to the SSH config file",
 				TakesFile: true,
 			},
