@@ -115,7 +115,14 @@ func NewAddCommand() *cli.Command {
 				return err
 			}
 
-			err = sshconfig.UpdateHostInConfig(c.Path("config"), name, name, keyPath)
+			h := sshconfig.HostOptions{
+				Name: name,
+				User: c.String("user"),
+				// TODO(milas): add support for hostname flag
+				Hostname: name,
+				KeyPath:  keyPath,
+			}
+			err = sshconfig.UpdateHostInConfig(c.Path("config"), h)
 			if err != nil {
 				return err
 			}
