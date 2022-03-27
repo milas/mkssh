@@ -9,7 +9,7 @@ It's designed to enable easily using per-host (or per-service) keys without comp
   * [ ] GNOME ([GNOME Keyring][gnome-keyring-ssh])
   * [x] macOS ([Keychain][macos-keychain-ssh])
   * [ ] Windows 10+ ([Credential Manager][windows-credential-manager-ssh])
-* [ ] Create host-specific entry in `~/.ssh/config`
+* [x] Create host-specific entry in `~/.ssh/config`
 * [ ] Add public key to GitHub, GitLab, etc.
 * [x] Compatibility mode for legacy/nonstandard systems
 
